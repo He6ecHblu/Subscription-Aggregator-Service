@@ -1,15 +1,26 @@
 package main
 
 import (
-	"encoding/json"
+	"context"
 	"log/slog"
 	"net/http"
 	"os"
 	"time"
 
+	_ "subscription-aggregator-service/docs"
 	"subscription-aggregator-service/internal/config"
+	"subscription-aggregator-service/internal/handler"
+	"subscription-aggregator-service/internal/repository"
+	"subscription-aggregator-service/internal/service"
+	"subscription-aggregator-service/internal/transport"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// @title Subscription Aggregator Service API
+// @version 1.0
+// @description REST service for aggregating user online subscription data.
+// @BasePath /api/v1
 func main() {
 	cfg, err := config.Load()
 	if err != nil {
@@ -21,12 +32,36 @@ func main() {
 		Level: parseLogLevel(cfg.LogLevel),
 	}))
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/health", healthHandler)
+	if cfg.DatabaseURL == "" {
+		logger.Error("config_validation_failed", "error", "DATABASE_URL must not be empty")
+		os.Exit(1)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	dbPool, err := pgxpool.New(ctx, cfg.DatabaseURL)
+	if err != nil {
+		logger.Error("database_pool_create_failed", "error", err)
+		os.Exit(1)
+	}
+	defer dbPool.Close()
+
+	if err := dbPool.Ping(ctx); err != nil {
+		logger.Error("database_ping_failed", "error", err)
+		os.Exit(1)
+	}
+
+	logger.Info("database_connected")
+
+	subscriptionRepository := repository.NewSubscriptionRepository(dbPool)
+	subscriptionService := service.NewSubscriptionService(subscriptionRepository)
+	subscriptionHandler := handler.NewSubscriptionHandler(subscriptionService, logger)
+	router := transport.NewRouter(subscriptionHandler, logger)
 
 	server := &http.Server{
 		Addr:              ":" + cfg.AppPort,
-		Handler:           mux,
+		Handler:           router,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
@@ -54,19 +89,4 @@ func parseLogLevel(level string) slog.Level {
 	default:
 		return slog.LevelInfo
 	}
-}
-
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.Header().Set("Allow", http.MethodGet)
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	_ = json.NewEncoder(w).Encode(map[string]string{
-		"status": "ok",
-	})
 }
