@@ -1,0 +1,20 @@
+# Local configuration
+.env
+.env.*
+!.env.example
+
+# Development notes
+DEVELOPMENT_PLAN.md
+
+# Build artifacts
+bin/
+dist/
+*.out
+
+# Go
+coverage.out
+
+# IDE and OS files
+.DS_Store
+.idea/
+.vscode/

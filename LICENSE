@@ -1,0 +1,54 @@
+Non-Commercial Technical Assessment License
+
+Copyright (c) 2026 Andrei Molchanov
+
+1. Purpose
+
+This repository contains a technical assessment project created as part of a hiring process.
+
+The project is provided solely for the following purposes:
+
+* review by the potential employer or its authorized representatives;
+* demonstration of the author's engineering skills;
+* non-commercial educational and portfolio purposes.
+
+This project is not intended to be used as a production-ready commercial product.
+
+2. Grant of Permission
+
+Permission is hereby granted to view, clone, run, and evaluate this software strictly for non-commercial purposes.
+
+The potential employer and its authorized reviewers may:
+
+* inspect the source code;
+* run the application locally or in a test environment;
+* evaluate the implementation quality;
+* use the repository as part of the hiring and technical review process.
+
+3. Restrictions
+
+Without prior written permission from the copyright holder, you may not:
+
+* use this software or any substantial part of it for commercial purposes;
+* integrate this software into a commercial product or service;
+* sell, sublicense, lease, rent, or otherwise commercially exploit the software;
+* copy this solution for use as another candidate's technical assessment;
+* remove or alter this license notice;
+* claim authorship of this project or any substantial part of it.
+
+4. Commercial Use
+
+Commercial use is expressly prohibited.
+
+For the purposes of this license, commercial use includes, but is not limited to:
+
+* using the software in a paid product or service;
+* using the software internally by a company for business operations;
+* using the software as a basis for a commercial implementation;
+* reselling, relicensing, or distributing the software for commercial benefit.
+
+5. Technical Assessment Declaration
+
+This repository is a test assignment solution.
+
+The presence of this code in a public or private GitHub
