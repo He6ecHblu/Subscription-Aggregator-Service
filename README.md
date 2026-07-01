@@ -455,6 +455,23 @@ http://localhost:8080/swagger/index.html
 
 ---
 
+## Tests
+
+Run unit and handler tests:
+
+```bash
+go test ./...
+```
+
+Repository integration tests require a running PostgreSQL database with migrations applied.
+With Docker Compose running, use:
+
+```bash
+DATABASE_URL="postgres://subscriptions_user:subscriptions_password@localhost:5432/subscriptions_db?sslmode=disable" go test ./internal/repository -run TestSubscriptionRepositoryIntegration -count=1 -v
+```
+
+---
+
 ## Migrations
 
 Database migrations are stored in the `migrations` directory.
