@@ -6,25 +6,53 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"subscription-aggregator-service/internal/config"
 )
 
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	cfg, err := config.Load()
+	if err != nil {
+		slog.Error("config_load_failed", "error", err)
+		os.Exit(1)
+	}
+
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: parseLogLevel(cfg.LogLevel),
+	}))
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", healthHandler)
 
 	server := &http.Server{
-		Addr:              ":8080",
+		Addr:              ":" + cfg.AppPort,
 		Handler:           mux,
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	logger.Info("server_started", "addr", server.Addr)
+	logger.Info(
+		"server_started",
+		"addr", server.Addr,
+		"env", cfg.AppEnv,
+		"database_configured", cfg.DatabaseURL != "",
+	)
 
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Error("server_failed", "error", err)
 		os.Exit(1)
+	}
+}
+
+func parseLogLevel(level string) slog.Level {
+	switch level {
+	case "debug":
+		return slog.LevelDebug
+	case "warn":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	default:
+		return slog.LevelInfo
 	}
 }
 

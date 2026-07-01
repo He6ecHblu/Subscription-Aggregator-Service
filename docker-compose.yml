@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: subscription-postgres
+    environment:
+      POSTGRES_DB: subscriptions_db
+      POSTGRES_USER: subscriptions_user
+      POSTGRES_PASSWORD: subscriptions_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U subscriptions_user -d subscriptions_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  migrate:
+    image: migrate/migrate:v4.18.3
+    container_name: subscription-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations:ro
+    command:
+      [
+        "-path",
+        "/migrations",
+        "-database",
+        "postgres://subscriptions_user:subscriptions_password@postgres:5432/subscriptions_db?sslmode=disable",
+        "up"
+      ]
+    restart: "no"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: subscription-app
+    environment:
+      APP_PORT: 8080
+      APP_ENV: docker
+      LOG_LEVEL: info
+      DATABASE_URL: postgres://subscriptions_user:subscriptions_password@postgres:5432/subscriptions_db?sslmode=disable
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  postgres-data:
