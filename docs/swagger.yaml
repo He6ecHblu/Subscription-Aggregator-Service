@@ -14,15 +14,25 @@ definitions:
   handler.CreateSubscriptionRequest:
     properties:
       end_date:
+        example: 12-2025
         type: string
       price:
+        example: 400
         type: integer
       service_name:
+        example: Yandex Plus
         type: string
       start_date:
+        example: 07-2025
         type: string
       user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
         type: string
+    required:
+    - price
+    - service_name
+    - start_date
+    - user_id
     type: object
   handler.ErrorResponse:
     properties:
@@ -66,15 +76,25 @@ definitions:
   handler.UpdateSubscriptionRequest:
     properties:
       end_date:
+        example: 12-2025
         type: string
       price:
+        example: 500
         type: integer
       service_name:
+        example: Yandex Plus
         type: string
       start_date:
+        example: 07-2025
         type: string
       user_id:
+        example: 60601fee-2bf1-4721-ae6f-7636e79a0cba
         type: string
+    required:
+    - price
+    - service_name
+    - start_date
+    - user_id
     type: object
 info:
   contact: {}

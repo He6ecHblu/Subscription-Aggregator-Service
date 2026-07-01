@@ -101,22 +101,29 @@ subscription-aggregator-service/
 │   ├── config/
 │   │   └── config.go
 │   ├── domain/
+│   │   ├── month.go
 │   │   └── subscription.go
 │   ├── handler/
+│   │   ├── dto.go
+│   │   ├── mapper.go
 │   │   └── subscription_handler.go
 │   ├── service/
+│   │   ├── errors.go
 │   │   └── subscription_service.go
 │   ├── repository/
 │   │   └── subscription_repository.go
 │   ├── transport/
+│   │   ├── middleware.go
 │   │   └── router.go
-│   └── logger/
-│       └── logger.go
 ├── migrations/
 │   ├── 000001_create_subscriptions.up.sql
 │   └── 000001_create_subscriptions.down.sql
 ├── docs/
+│   ├── docs.go
+│   ├── swagger.json
+│   └── swagger.yaml
 ├── .env.example
+├── Makefile
 ├── Dockerfile
 ├── docker-compose.yml
 ├── go.mod
@@ -457,18 +464,20 @@ http://localhost:8080/swagger/index.html
 
 ## Tests
 
-Run unit and handler tests:
+Run unit, service, handler, and repository tests that do not require an external database:
 
 ```bash
-go test ./...
+make test
 ```
 
 Repository integration tests require a running PostgreSQL database with migrations applied.
 With Docker Compose running, use:
 
 ```bash
-DATABASE_URL="postgres://subscriptions_user:subscriptions_password@localhost:5432/subscriptions_db?sslmode=disable" go test ./internal/repository -run TestSubscriptionRepositoryIntegration -count=1 -v
+make test-integration
 ```
+
+The integration test is skipped by plain `go test ./...` when `DATABASE_URL` is not set.
 
 ---
 
